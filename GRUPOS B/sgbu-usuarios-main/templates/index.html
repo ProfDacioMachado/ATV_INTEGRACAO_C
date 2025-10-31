@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGBU - Cadastro de Usuários</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Sistema de Gerenciamento de Biblioteca</h1>
+            <h2>Módulo: Cadastro de Usuários - Equipe 1</h2>
+        </header>
+
+        <main>
+            <!-- Formulário de Cadastro -->
+            <section class="form-section">
+                <h3>➕ Cadastrar Novo Usuário</h3>
+                <form id="formCadastro">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo *</label>
+                            <input type="text" id="nome" name="nome" required 
+                                   minlength="1" maxlength="100" 
+                                   placeholder="Ex: João Silva">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="matricula">Matrícula *</label>
+                            <input type="text" id="matricula" name="matricula" required 
+                                   minlength="5" maxlength="20" 
+                                   placeholder="Ex: ALU12345">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo">Tipo de Usuário *</label>
+                            <select id="tipo" name="tipo" required>
+                                <option value="">Selecione...</option>
+                                <option value="ALUNO">🎓 Aluno</option>
+                                <option value="PROFESSOR">👨‍🏫 Professor</option>
+                                <option value="FUNCIONARIO">👔 Funcionário</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email (opcional)</label>
+                            <input type="email" id="email" name="email" 
+                                   placeholder="Ex: joao@email.com">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        ✅ Cadastrar Usuário
+                    </button>
+                </form>
+            </section>
+
+            <!-- Mensagem de Feedback -->
+            <div id="mensagem" class="mensagem"></div>
+
+            <!-- Lista de Usuários -->
+            <section class="list-section">
+                <h3>👥 Usuários Cadastrados ({{ usuarios|length }})</h3>
+                
+                {% if usuarios %}
+                <div class="table-container">
+                    <table id="tabelaUsuarios">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Matrícula</th>
+                                <th>Tipo</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Data Registro</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in usuarios %}
+                            <tr>
+                                <td><strong>#{{ usuario.id }}</strong></td>
+                                <td>{{ usuario.nome }}</td>
+                                <td><code>{{ usuario.matricula }}</code></td>
+                                <td>
+                                    <span class="badge badge-{{ usuario.tipo.value.lower() }}">
+                                        {% if usuario.tipo.value == 'ALUNO' %}🎓{% elif usuario.tipo.value == 'PROFESSOR' %}👨‍🏫{% else %}👔{% endif %}
+                                        {{ usuario.tipo.value }}
+                                    </span>
+                                </td>
+                                <td>{{ usuario.email or '—' }}</td>
+                                <td>
+                                    <span class="badge badge-status-{{ usuario.status.value.lower() }}">
+                                        {{ usuario.status.value }}
+                                    </span>
+                                </td>
+                                <td>{{ usuario.dataRegistro[:10] }}</td>
+                                <td>
+                                    <button class="btn btn-small btn-danger" 
+                                            onclick="removerUsuario({{ usuario.id }},'{{ usuario.nome }}')">
+                                        🗑️ Remover
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>📭 Nenhum usuário cadastrado ainda.</p>
+                    <p>Use o formulário acima para cadastrar o primeiro usuário!</p>
+                </div>
+                {% endif %}
+            </section>
+        </main>
+
+        <footer>
+            <p>🎓 Equipe 1 - Cadastro de Usuários | TecLearn TABAJARA</p>
+            <p>Desenvolvido com TDD (Test Driven Development) | 21 testes passando ✅</p>
+        </footer>
+    </div>
+
+    <script>
+        // Cadastrar usuário
+        document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const dados = {
+                nome: document.getElementById('nome').value.trim(),
+                matricula: document.getElementById('matricula').value.trim(),
+                tipo: document.getElementById('tipo').value,
+            };
+            
+            try {
+                const response = await fetch('/api/usuarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+                
+                if (response.ok) {
+                    const usuario = await response.json();
+                    mostrarMensagem(`✅ Usuário "${usuario.nome}" cadastrado com sucesso!`, 'sucesso');
+                    document.getElementById('formCadastro').reset();
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    const erro = await response.json();
+                    mostrarMensagem(`❌ Erro: ${erro.erro}`, 'erro');
+                }
+            } catch (error) {
+                mostrarMensagem('❌ Erro ao cadastrar usuário. Tente novamente.', 'erro');
+            }
+        });
+        
+        // Remover usuário
+        async function removerUsuario(id, nome) {
+            if (!confirm(`⚠️ Deseja realmente remover o usuário "${nome}"?\n\nEsta ação não pode ser desfeita.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/usuarios/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    mostrarMensagem(`✅ Usuário "${nome}" removido com sucesso!`, 'sucesso');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    const erro = await response.json();
+                    mostrarMensagem(`❌ Erro: ${erro.erro}`, 'erro');
+                }
+            } catch (error) {
+                mostrarMensagem('❌ Erro ao remover usuário. Tente novamente.', 'erro');
+            }
+        }
+        
+        // Mostrar mensagem de feedback
+        function mostrarMensagem(texto, tipo) {
+            const div = document.getElementById('mensagem');
+            div.textContent = texto;
+            div.className = `mensagem ${tipo}`;
+            div.style.display = 'block';
+            
+            setTimeout(() => {
+                div.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Validação em tempo real
+        document.getElementById('nome').addEventListener('input', function() {
+            if (this.value.length > 0 && this.value.length < 1) {
+                this.setCustomValidity('Nome deve ter pelo menos 1 caractere');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        document.getElementById('matricula').addEventListener('input', function() {
+            if (this.value.length > 0 && this.value.length < 5) {
+                this.setCustomValidity('Matrícula deve ter entre 5 e 20 caracteres');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html>

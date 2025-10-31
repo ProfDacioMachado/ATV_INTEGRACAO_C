@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Usuário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="email"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        .required {
+            color: #dc3545;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .success {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastrar Novo Usuário</h1>
+        
+        <form id="usuarioForm" action="/criar_usuario" method="POST">
+            <div class="form-group">
+                <label for="nome">Nome <span class="required">*</span></label>
+                <input type="text" id="nome" name="nome" required maxlength="100">
+                <div class="help-text">Entre 1 e 100 caracteres</div>
+                <div id="nome-error" class="error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="matricula">Matrícula <span class="required">*</span></label>
+                <input type="text" id="matricula" name="matricula" required maxlength="20">
+                <div class="help-text">Entre 5 e 20 caracteres alfanuméricos</div>
+                <div id="matricula-error" class="error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo">Tipo <span class="required">*</span></label>
+                <select id="tipo" name="tipo" required>
+                    <option value="">Selecione o tipo</option>
+                    <option value="ALUNO">Aluno</option>
+                    <option value="PROFESSOR">Professor</option>
+                    <option value="FUNCIONARIO">Funcionário</option>
+                </select>
+                <div id="tipo-error" class="error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" maxlength="100">
+                <div class="help-text">Opcional - formato válido de email</div>
+                <div id="email-error" class="error"></div>
+            </div>
+
+            <button type="submit" class="btn">Cadastrar Usuário</button>
+        </form>
+
+        <a href="/usuarios" class="btn btn-secondary">Voltar para Lista</a>
+    </div>
+
+    <script>
+        document.getElementById('usuarioForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Limpar erros anteriores
+            clearErrors();
+            
+            // Validar campos
+            let isValid = true;
+            
+            // Validar nome
+            const nome = document.getElementById('nome').value.trim();
+            if (!nome) {
+                showError('nome-error', 'Nome é obrigatório');
+                isValid = false;
+            } else if (nome.length < 1 || nome.length > 100) {
+                showError('nome-error', 'Nome deve ter entre 1 e 100 caracteres');
+                isValid = false;
+            }
+            
+            // Validar matrícula
+            const matricula = document.getElementById('matricula').value.trim();
+            if (!matricula) {
+                showError('matricula-error', 'Matrícula é obrigatória');
+                isValid = false;
+            } else if (matricula.length < 5 || matricula.length > 20) {
+                showError('matricula-error', 'Matrícula deve ter entre 5 e 20 caracteres');
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9]+$/.test(matricula)) {
+                showError('matricula-error', 'Matrícula deve conter apenas caracteres alfanuméricos');
+                isValid = false;
+            }
+            
+            // Validar tipo
+            const tipo = document.getElementById('tipo').value;
+            if (!tipo) {
+                showError('tipo-error', 'Tipo é obrigatório');
+                isValid = false;
+            }
+            
+            // Validar email (se fornecido)
+            const email = document.getElementById('email').value.trim();
+            if (email && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+                showError('email-error', 'Formato de email inválido');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Enviar formulário
+                const formData = new FormData(this);
+                fetch('/criar_usuario', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(formData)
+                })
+                .then(response => response.text())
+                .then(data => {
+                    if (data.includes('sucesso')) {
+                        alert('Usuário cadastrado com sucesso!');
+                        window.location.href = '/usuarios';
+                    } else {
+                        alert('Erro ao cadastrar usuário: ' + data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao cadastrar usuário');
+                });
+            }
+        });
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).textContent = message;
+        }
+
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error');
+            errorElements.forEach(element => {
+                element.textContent = '';
+            });
+        }
+    </script>
+</body>
+</html>

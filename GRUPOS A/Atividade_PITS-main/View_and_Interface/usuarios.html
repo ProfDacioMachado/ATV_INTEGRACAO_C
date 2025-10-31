@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Usuários</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .actions {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e9ecef;
+        }
+        .status-ativo {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-inativo {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        .status-suspenso {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .tipo-aluno {
+            background-color: #e3f2fd;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .tipo-professor {
+            background-color: #f3e5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .tipo-funcionario {
+            background-color: #e8f5e8;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .no-users {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciamento de Usuários</h1>
+        
+        <div class="actions">
+            <a href="/cadastrar_usuario" class="btn btn-success">+ Novo Usuário</a>
+            <a href="/menu" class="btn">Voltar ao Menu</a>
+        </div>
+
+        <!--USUARIOS-->
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Matrícula</th>
+                    <th>Tipo</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Data Registro</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!--USUARIOS-->
+            </tbody>
+        </table>
+        
+        <div class="no-users" style="display: none;">
+            Nenhum usuário cadastrado.
+        </div>
+    </div>
+
+    <script>
+        // Carregar usuários ao carregar a página
+        window.onload = function() {
+            carregarUsuarios();
+        };
+
+        function carregarUsuarios() {
+            fetch('/listar_usuarios')
+                .then(response => response.text())
+                .then(data => {
+                    document.querySelector('tbody').innerHTML = data;
+                    // Verificar se há usuários
+                    const tbody = document.querySelector('tbody');
+                    if (tbody.children.length === 0) {
+                        document.querySelector('.no-users').style.display = 'block';
+                        document.querySelector('table').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar usuários:', error);
+                });
+        }
+
+        function excluirUsuario(id) {
+            if (confirm('Tem certeza que deseja excluir este usuário?')) {
+                fetch('/excluir_usuario', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'id=' + id
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert('Usuário excluído com sucesso!');
+                    carregarUsuarios();
+                })
+                .catch(error => {
+                    console.error('Erro ao excluir usuário:', error);
+                    alert('Erro ao excluir usuário');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

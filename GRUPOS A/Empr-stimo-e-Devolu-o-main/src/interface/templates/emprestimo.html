@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Controle de Empréstimos</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+    .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); max-width: 900px; margin: 0 auto; }
+    h1 { margin-bottom: 20px; color: #333; font-size: 24px; text-align: center; }
+    .back-link { display: inline-block; margin-bottom: 20px; color: #4CAF50; text-decoration: none; font-weight: bold; }
+    .back-link:hover { text-decoration: underline; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { background: #4CAF50; color: white; padding: 12px; text-align: left; font-weight: bold; }
+    td { padding: 10px; border-bottom: 1px solid #ddd; }
+    tr:hover { background: #f9f9f9; }
+    .no-data { text-align: center; color: #999; padding: 20px; }
+    button { margin-top: 20px; padding: 10px 20px; background: #4CAF50; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; }
+    button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="{{ url_for('index') }}" class="back-link">← Voltar ao Menu</a>
+    <h1>Controle de Empréstimos</h1>
+    <table id="loan-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuário</th>
+          <th>Livro</th>
+          <th>Status</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="5" class="no-data">Carregando empréstimos...</td>
+        </tr>
+      </tbody>
+    </table>
+    <button onclick="location.reload()">Atualizar Lista</button>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Devoluções</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+    .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); max-width: 700px; margin: 0 auto; }
+    h1 { margin-bottom: 20px; color: #333; font-size: 24px; text-align: center; }
+    .back-link { display: inline-block; margin-bottom: 20px; color: #4CAF50; text-decoration: none; font-weight: bold; }
+    .back-link:hover { text-decoration: underline; }
+    p { color: #555; margin-bottom: 20px; text-align: center; }
+    ul { list-style: none; padding: 0; }
+    li { background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #4CAF50; display: flex; justify-content: space-between; align-items: center; }
+    li:hover { background: #f0f0f0; }
+    .loan-info { flex: 1; }
+    .loan-info strong { color: #333; }
+    button { padding: 8px 16px; background: #4CAF50; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; }
+    button:hover { background: #45a049; }
+    .no-data { text-align: center; color: #999; padding: 20px; }
+    .success { color: #4CAF50; text-align: center; margin-top: 10px; font-weight: bold; }
+    .error { color: red; text-align: center; margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="{{ url_for('index') }}" class="back-link">← Voltar ao Menu</a>
+    <h1>Registro de Devoluções</h1>
+    <p>Selecione o empréstimo a ser devolvido:</p>
+    <ul id="return-list">
+      <li class="no-data">Carregando empréstimos ativos...</li>
+    </ul>
+    <div id="message"></div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
